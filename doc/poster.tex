@@ -1,0 +1,297 @@
+\documentclass[14pt, a1paper, portrait]{tikzposter} % font sizes: 12pt, 14pt, 17pt, 20pt and 25pt
+
+%\usetheme{Simple}
+
+\usepackage{graphicx}
+\usepackage{graphics}
+
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta}
+
+\newcommand{\negvspace}[0]{\vspace{-14.8mm}}
+\newcommand{\figscale}[0]{0.5}
+\newcommand{\spacing}[0]{4mm}
+\newcommand{\blockschrink}[0]{7mm}
+
+\newcommand{\textdesc}[1]{\textit{\textbf{#1}}}
+\newcommand{\descitem}[1]{\item \textdesc{#1}}
+\newcommand{\includeSVG}[1]{
+  \includegraphics[scale=1.0]{./figs/#1.pdf}
+}
+\newcommand{\includeSVGfs}[1]{
+  \includegraphics[width=\paperwidth]{./figs/#1.pdf}
+}
+\newcommand{\includeBitmap}[2]{
+  \includegraphics[width=#2]{./figs/#1}
+}
+
+\begin{document}
+\title{Research Interests}
+\author{Aslak Johansen}
+\institute{Software Engineering Section, University of Southern Denmark}
+\maketitle[width=48cm]
+
+\begin{columns}
+  \column{.5}
+  
+  \block[bodyoffsety=\blockschrink]{\vspace{-6mm}Introduction}{
+    Systems work involving streaming data with requirements on latency and availability.
+    
+    \vspace{\spacing}
+    Relevant qualities:
+    \begin{itemize}
+      \descitem{Concurrency} The ability to allow work to be defined in units that can be executed in parallel (concurrency models).
+      \descitem{Latency} The ability to provide robust low latency (e.g, by bounding concurrency).
+      \descitem{Availability} The ability to provide service despite the occurrence of unforeseen events across the lifetime of the deployment (gracefull degradation, hot updates, distribution).
+    \end{itemize}
+    
+    \vspace{\spacing}
+    Interesting aspects:
+    \begin{itemize}
+      \item Metadata.
+      \item Query languages and interaction models.
+      \item In-network processing.
+    \end{itemize}
+  }
+  
+  \block[bodyoffsety=\blockschrink]{\vspace{-6mm}Problem}{
+    % problem statement
+    It is applicable to any domain where:
+    How should a generic interface to building latency-intolerant applications on top of streaming data be constructed. In particular, where:
+    \begin{itemize}
+      \item There is a significant number of data streams (or historical timeseries data).
+      \item There is metadata associated with context shared between multiple data streams.
+      \item Multiple applications should operate on top of the same data model.
+      \item The application interface should be simple.
+      \item On-demand virtual datastreams are relevant.
+      \item Availability, concurrency and latency matter.
+    \end{itemize}
+    
+    % initial motivation
+    \vspace{\spacing}
+    The initial motivation came from the building domain as support for an app ecosystem.
+  }
+  
+  \block[bodyoffsety=\blockschrink]{\vspace{-6mm}Domain Metadata Model Example}{
+    \hspace{-3mm}\scalebox{0.509}{
+      \includeSVG{metadata16}
+    }
+  }
+  
+  \column{.5}
+  
+  \block[bodyoffsety=\blockschrink]{\vspace{-6mm}Interaction Model}{
+    Typical model of polling information model:
+    
+    \negvspace
+    \hspace{-10mm}\scalebox{\figscale}{
+      \includeSVG{pollpoll13}
+    }
+    
+    Proposed model of subscribing to the result set of a query over the information model:
+    
+    \negvspace
+    \hspace{-10mm}\scalebox{\figscale}{
+      \includeSVG{pushpush18}
+    }
+  }
+  
+  \block[bodyoffsety=\blockschrink]{\vspace{-6mm}Technology}{
+    \textbf{Query Anatomy} The query format should be an extended version of a standardized query language (e.g., OpenCypher).
+    \begin{itemize}
+      \descitem{Pattern} A pattern definition to query the information model.
+      \descitem{Data Subscription} A list of the data streams from each match site to forward.
+      \descitem{Unit Preferences} A mapping from modality to unit for in-flight automatic convertion.
+      \descitem{Temporal Range} The temporal range of interest. Historical data should be replayed until live data can be forwarded live. Indicators for the transitions.
+    \end{itemize}
+    
+    \vspace{\spacing}
+    \textbf{Distributed Model:} Once the service hosting the model becomes distributed the metadata essentially becomes software-defined.
+    \begin{itemize}
+      \item Support for improved availability.
+      \item Support for model federation (equipment comes with own models, query results can be dependent on physical state).
+      \item The subscription acts as a session, allowing for demand-driven soft/virtual sensors.
+    \end{itemize}
+  }
+  
+%  \block{Other Areas}{
+%    \begin{itemize}
+%      \item Information Model Lifecycle Tracking
+%      \item Caching-Friendly DAG-Based Data Processing
+%      \item Data Processing Introspection
+%    \end{itemize}
+%  }
+  
+\end{columns}
+
+\block[bodyoffsety=\blockschrink]{\vspace{-6mm}Design}{
+  \begin{tikzpicture}[remember picture,overlay]
+      % vars
+      \newcommand{\appservice}[0]{15cm}
+      \newcommand{\servicesrc}[0]{35cm}
+      \newcommand{\width}[0]{54cm}
+      \newcommand{\border}[0]{5cm}
+      \newcommand{\metadatamodelheight}[0]{4cm}
+      
+      \newcommand{\domainheight}[0]{17.2cm}
+      \newcommand{\domaincolor}[0]{green!80!black}
+      \newcommand{\domaintextscale}[0]{1.2}
+      \newcommand{\unit}[0]{8mm}
+      
+      
+      % styles
+      \tikzstyle{arrow} = [
+        very thick,
+        -{Latex[length=5mm, width=2mm]},
+        >=stealth,
+        draw=purple,
+      ]
+      \tikzstyle{domaindoundary} = [
+        very thick,
+        dashed,
+        draw=\domaincolor,
+      ]
+      \tikzstyle{stream} = [
+        very thick,
+        rectangle,
+        anchor=north west,
+        minimum width=\unit,
+        minimum height=\unit,
+      ]
+      \tikzstyle{broker} = [
+        very thick,
+        circle,
+        anchor=center,
+        minimum width=4*\unit,
+        minimum height=4*\unit,
+      ]
+      \tikzstyle{source} = [
+        very thick,
+        diamond,
+        anchor=center,
+        minimum width=1.0*\unit,
+        minimum height=1.0*\unit,
+      ]
+      
+      % hardpoints
+      \coordinate (origo) at (0, 0);
+      \coordinate (oapp) at ([xshift=0mm] origo);
+      \coordinate (oservice) at ([xshift=\appservice] origo);
+      \coordinate (osub) at ([xshift=9*\unit, yshift=-(4.5*\unit+\metadatamodelheight)] oservice);
+      \coordinate (odata) at ([xshift=8*\unit] osub);
+      \coordinate (osrc) at ([xshift=\servicesrc] origo);
+      
+      \coordinate (obroker) at ([xshift=(\width-\servicesrc)/2] osrc);
+      
+      % domains
+      \node[anchor=south] (applabel) at ([xshift=\appservice/2, yshift=-\domainheight] oapp) {\scalebox{\domaintextscale}{\textsl{\textcolor{\domaincolor}{Application Domain}}}};
+      \draw[domaindoundary] (oservice)--([yshift=-\domainheight] oservice);
+      \node[anchor=south] (servicelabel) at ([xshift=(\servicesrc-\appservice)/2, yshift=-\domainheight] oservice) {\scalebox{\domaintextscale}{\textsl{\textcolor{\domaincolor}{Service Domain}}}};
+      \draw[domaindoundary] (osrc)--([yshift=-\domainheight] osrc);
+      \node[anchor=south] (sourcelabel) at ([xshift=(\width-\servicesrc)/2, yshift=-\domainheight] osrc) {\scalebox{\domaintextscale}{\textsl{\textcolor{\domaincolor}{Source Domain}}}};
+      
+      
+      % application
+      \node[
+        rectangle,
+        ultra thick,
+        draw=black,
+        anchor=north west,
+        minimum width=\appservice-\border,
+        minimum height=\domainheight-4*5mm,
+      ] (metadatamodel) at ([xshift=5mm, yshift=-5mm] oapp) {\scalebox{2}{\rotatebox{90}{Application}}};
+      
+      % subscription
+      \node[
+        rectangle,
+        very thick,
+        dashed,
+        draw=purple,
+        anchor=north west,
+        minimum width=6*\unit,
+        minimum height=7*\unit,
+      ] (subscription) at ([xshift=0mm, yshift=0mm] osub) {};
+      \node[stream, draw=purple] (metadatamodelNodeA) at ([xshift=\unit, yshift=-3*\unit] osub) {};
+      \node[stream, draw=purple] (metadatamodelNodeB) at ([xshift=4*\unit, yshift=-\unit] osub) {};
+      \node[stream, draw=purple] (metadatamodelNodeC) at ([xshift=4*\unit, yshift=-5*\unit] osub) {};
+      \draw[arrow, draw=purple] (metadatamodelNodeA.west)--([xshift=5mm-(10*\unit+\border)] metadatamodelNodeA.west);
+      \draw[arrow, draw=purple] ([yshift=\unit/6] metadatamodelNodeB.west)--([yshift=\unit/6, xshift=5mm-(13*\unit+\border)] metadatamodelNodeB.west);
+      \draw[arrow, draw=purple] ([yshift=-\unit/6] metadatamodelNodeB.west) to [out=180,in=45] (metadatamodelNodeA);
+      \draw[arrow, draw=purple] (metadatamodelNodeC.west) to [out=180,in=-45] (metadatamodelNodeA);
+      \node[anchor=north] (sublabel) at ([yshift=-2mm] subscription.south) {\scalebox{\domaintextscale}{\textsl{\textcolor{purple}{Transformations}}}};
+      
+      % data
+      \node[stream, draw=black!20] (streamA) at ([yshift=3*\unit] odata) {};
+      \node[stream, draw=black!40] (streamB) at ([yshift=1*\unit] odata) {};
+      \node[stream, draw=black] (streamC) at ([yshift=-1*\unit] odata) {};
+      \node[stream, draw=black] (streamD) at ([yshift=-3*\unit] odata) {};
+      \node[stream, draw=black] (streamE) at ([yshift=-5*\unit] odata) {};
+      \node[stream, draw=black!40] (streamF) at ([yshift=-7*\unit] odata) {};
+      \node[stream, draw=black!20] (streamG) at ([yshift=-9*\unit] odata) {};
+      \draw[arrow, draw=black] (streamB.west)--([xshift=5mm-(17*\unit+\border)] streamB.west);
+      \draw[arrow, draw=black] (streamC.west)--(metadatamodelNodeB.east);
+      \draw[arrow, draw=black] (streamE.west)--(metadatamodelNodeC.east);
+      
+      % metadatamodel
+      \node[
+        rectangle,
+        ultra thick,
+        draw=black,
+        anchor=north west,
+        minimum width=\width-\appservice-\border-5mm,
+        minimum height=\metadatamodelheight,
+      ] (metadatamodel) at ([xshift=\border, yshift=-5mm] oservice) {\scalebox{2}{Information Model}};
+      
+      % brokers
+      \node[broker, draw=black] (brokerA) at ([yshift=-\metadatamodelheight-0.75*(\domainheight-4*5mm-\metadatamodelheight)/3] obroker) {MQTT};
+      \node[broker, draw=black] (brokerB) at ([yshift=-\metadatamodelheight-1.75*(\domainheight-4*5mm-\metadatamodelheight)/3, xshift=4cm] obroker) {WebSocket};
+      \node[broker, draw=black] (brokerC) at ([yshift=-\metadatamodelheight-2.75*(\domainheight-4*5mm-\metadatamodelheight)/3] obroker) {Kafka};
+      \draw[arrow, draw=black] (brokerA) to [out=170,in=0] (streamA);
+      \draw[arrow, draw=black] (brokerA) to [out=180,in=0] (streamB);
+      \draw[arrow, draw=black] (brokerA) to [out=190,in=0] (streamC);
+      \draw[arrow, draw=black] (brokerB) to [out=175,in=0] (streamD);
+      \draw[arrow, draw=black] (brokerB) to [out=185,in=0] (streamE);
+      \draw[arrow, draw=black] (brokerC) to [out=175,in=0] (streamF);
+      \draw[arrow, draw=black] (brokerC) to [out=185,in=0] (streamG);
+      
+      % src
+      \node[source, draw=black] (brokerAsrcA) at ([xshift=40mm, yshift=0mm] brokerA) {};
+      \node[source, draw=black] (brokerAsrcB) at ([xshift=28mm, yshift=28mm] brokerA) {};
+      \node[source, draw=black] (brokerAsrcC) at ([xshift=0mm, yshift=40mm] brokerA) {};
+      \draw[arrow, draw=black] (brokerAsrcA) to (brokerA);
+      \draw[arrow, draw=black] (brokerAsrcB) to (brokerA);
+      \draw[arrow, draw=black] (brokerAsrcC) to (brokerA);
+      \node[source, draw=black] (brokerBsrcA) at ([xshift=20mm, yshift=18mm] brokerB) {};
+      \node[source, draw=black] (brokerBsrcB) at ([xshift=28mm, yshift=0mm] brokerB) {};
+      \node[source, draw=black] (brokerBsrcC) at ([xshift=20mm, yshift=-18mm] brokerB) {};
+      \node[source, draw=black] (brokerBsrcD) at ([xshift=40mm, yshift=15mm] brokerB) {};
+      \node[source, draw=black] (brokerBsrcE) at ([xshift=40mm, yshift=-15mm] brokerB) {};
+      \draw[arrow, draw=black] (brokerBsrcA) to (brokerB);
+      \draw[arrow, draw=black] (brokerBsrcB) to (brokerB);
+      \draw[arrow, draw=black] (brokerBsrcC) to (brokerB);
+      \draw[arrow, draw=black] (brokerBsrcD) to (brokerB);
+      \draw[arrow, draw=black] (brokerBsrcE) to (brokerB);
+      \node[source, draw=black] (brokerCsrcA) at ([xshift=32mm, yshift=12mm] brokerC) {};
+      \node[source, draw=black] (brokerCsrcB) at ([xshift=32mm, yshift=-12mm] brokerC) {};
+      \draw[arrow, draw=black] (brokerCsrcA) to (brokerC);
+      \draw[arrow, draw=black] (brokerCsrcB) to (brokerC);
+      
+      % interaction edges
+      \draw[arrow, draw=teal] ([xshift=-2*\border+5mm, yshift=-\metadatamodelheight/3] metadatamodel.north west)--([yshift=-\metadatamodelheight/3] metadatamodel.north west) node[midway,sloped,above] {\scalebox{1.0}{\textsl{\textcolor{teal}{query-based subscription}}}};
+      \draw[arrow, draw=teal] ([yshift=-2*\metadatamodelheight/3] metadatamodel.north west)--([xshift=-2*\border+5mm, yshift=-2*\metadatamodelheight/3] metadatamodel.north west) node[midway,sloped,above] {\scalebox{1.0}{\textsl{\textcolor{teal}{stream of result-set diffs}}}};
+      \node[
+        rectangle,
+        very thick,
+        dashed,
+        draw=teal,
+        anchor=north west,
+        minimum width=8*\unit,
+        minimum height=10.5*\unit,
+      ] (realsub) at ([xshift=-\unit, yshift=1.5*\unit] subscription.north west) {};
+      \node[anchor=north] (sublabel) at ([yshift=-2mm] realsub.south) {\scalebox{\domaintextscale}{\textsl{\textcolor{teal}{Subscription}}}};
+      \draw[arrow, draw=teal] ([yshift=2.5*\unit-1mm] realsub.north)--(realsub.north) node[midway,left] {\scalebox{1.0}{\textsl{\textcolor{teal}{stream of configuration updates}}}};
+  \end{tikzpicture}
+  \vspace{17.2cm}
+}
+
+\end{document}
